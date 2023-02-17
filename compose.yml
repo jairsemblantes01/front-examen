@@ -1,0 +1,53 @@
+version: '3'
+services:
+  book-service:
+    image: jaimesalvador/api-books:1.0
+    deploy:
+      replicas: 1
+    ports:
+      - "8081:8081"
+  author-service:
+    image: jaimesalvador/api-autores:1.0
+    deploy:
+      replicas: 1
+    environment:
+      quarkus.datasource.db-kind: postgresql
+      quarkus.datasource.username: ubuntu
+      quarkus.datasource.password: 12345678
+      quarkus.datasource.jdbc.url: jdbc:postgresql://181.215.242.75:10007/distribuida
+      quarkus.http.port: 8082
+    ports:
+      - "8082:8082"
+  front-service:
+    image: jaimesalvador/app-libreria:1.0
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - book-service
+      - author-service
+  #services:
+
+  # traefik:
+  #   image: "traefik:v2.9"
+  #   container_name: "traefik"
+  #   command:
+  #     #- "--log.level=DEBUG"
+  #     - "--api.insecure=true"
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entrypoints.web.address=:80"
+  #   ports:
+  #     - "80:80"
+  #     - "8080:8080"
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  # whoami:
+  #   image: "traefik/whoami"
+  #   container_name: "simple-service"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+  #     - "traefik.http.routers.whoami.entrypoints=web"
